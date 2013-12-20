@@ -10,7 +10,7 @@ Weixin.prototype.init = function (options) {
  * 验证权限
  */
 Weixin.prototype.signature = function () {
-    console.log('测试方法a');
+    console.log('测试方法');
 };
 
 module.exports = Weixin;
