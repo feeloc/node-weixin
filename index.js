@@ -12,6 +12,8 @@ var emitter = new events.EventEmitter();
 var Weixin = function (options) {
     this.url = options.url || '/';
     this.token = options.token || '';
+    this.appid = options.appid || '';
+    this.secret = options.secret || '';
 };
 
 /**
@@ -190,10 +192,19 @@ Weixin.prototype.handleEventMsg = function () {
     var event = this.msg.Event;
     switch (event) {
         case 'subscribe':
-            this.handleSubEventMsg();   //订阅事件消息
+            this.handleSubEventMsg();
             break;
         case 'unsubscribe':
-            this.handleUnsubEventMsg(); //取消订阅事件消息
+            this.handleUnsubEventMsg();
+            break;
+        case 'scan':
+            this.handleScanEventMsg();
+            break;
+        case 'LOCATION':
+            this.handleLocationEventMsg();
+            break;
+        case 'CLICK':
+            this.handleClickEventMsg();
             break;
     }
 
@@ -205,7 +216,13 @@ Weixin.prototype.handleEventMsg = function () {
  * @returns {*}
  */
 Weixin.prototype.handleSubEventMsg = function () {
-    emitter.emit('SubEventMsg', this.msg);
+    // 扫码，未关注，先关注后发场景值
+    if (this.msg.EventKey) {
+        emitter.emit('SubScanEventMsg', this.msg);
+    } else {
+        //关注事件
+        emitter.emit('SubEventMsg', this.msg);
+    }
     return this;
 };
 
@@ -216,6 +233,16 @@ Weixin.prototype.handleSubEventMsg = function () {
  */
 Weixin.prototype.subEventMsg = function (callback) {
     emitter.on('SubEventMsg', callback);
+    return this;
+};
+
+/**
+ * 监听扫码订阅事件消息
+ * @param callback
+ * @returns {*}
+ */
+Weixin.prototype.subEventMsg = function (callback) {
+    emitter.on('SubScanEventMsg', callback);
     return this;
 };
 
@@ -235,6 +262,63 @@ Weixin.prototype.handleUnsubEventMsg = function () {
  */
 Weixin.prototype.unsubEventMsg = function (callback) {
     emitter.on('UnSubEventMsg', callback);
+    return this;
+};
+
+/**
+ * 处理扫码事件消息
+ * @returns {*}
+ */
+Weixin.prototype.handleScanEventMsg = function () {
+    emitter.emit('ScanEventMsg', this.msg);
+    return this;
+};
+
+/**
+ * 监听扫码事件
+ * @param callback
+ * @returns {*}
+ */
+Weixin.prototype.scanEventMsg = function (callback) {
+    emitter.on('ScanEventMsg', callback);
+    return this;
+};
+
+/**
+ * 处理上报地理位置消息
+ * @returns {*}
+ */
+Weixin.prototype.handleLocationEventMsg = function () {
+    emitter.emit('LocationEventMsg', this.msg);
+    return this;
+};
+
+/**
+ * 监听上报地理位置消息
+ * @param callback
+ * @returns {*}
+ */
+Weixin.prototype.locationEventMsg = function (callback) {
+    emitter.on('LocationEventMsg', callback);
+    return this;
+};
+
+/**
+ * 处理自定义菜单事件
+ * @returns {*}
+ */
+Weixin.prototype.handleClickEventMsg = function () {
+    emitter.emit('clickEventMsg', this.msg);
+    return this;
+};
+
+/**
+ * 监听自定义菜单事件
+ * @param callback
+ * @returns {*}
+ */
+Weixin.prototype.clickEventMsg = function (callback) {
+    emitter.on('clickEventMsg', callback);
     return this;
 };
 
@@ -307,5 +391,7 @@ Weixin.prototype.getMsg = function (req) {
         });
     });
 };
+
+Weixin.prototype.postMsg = function(){};
 
 module.exports = Weixin;
