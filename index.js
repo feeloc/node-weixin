@@ -1,8 +1,18 @@
+/**
+ * Created with IntelliJ IDEA.
+ * User: hujianmeng
+ * Date: 13-12-23
+ * Time: 下午12:40
+ * To change this template use File | Settings | File Templates.
+ */
+
 var sha1 = require('sha1');
 var BufferHelper = require('bufferhelper');
 var xml2js = require('xml2js');
 var events = require('events');
 var emitter = new events.EventEmitter();
+var httpHandle = require('./lib/util').httpHandle;
+var weixinMsgXml = require('./lib/weixinMsgXml').weixinMsgXml;
 
 /**
  * 微信类，实现微信的所有接口
@@ -10,6 +20,7 @@ var emitter = new events.EventEmitter();
  * @constructor
  */
 var Weixin = function (options) {
+    this.accessTokenUrl = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={APPID}&secret={APPSECRET}'
     this.url = options.url || '/';
     this.token = options.token || '';
     this.appid = options.appid || '';
@@ -26,29 +37,6 @@ var Weixin = function (options) {
  */
 Weixin.init = function (options) {
     return new Weixin(options);
-};
-
-/**
- * 服务器请请该接口，发送三个参数，本地经过流程判断有效性
- * 验证权限
- * @param req
- * @returns {boolean}
- */
-Weixin.prototype.signature = function (req) {
-    var signature = req.query.signature;    //服务器签名
-    var timestamp = req.query.timestamp;
-    var nonce = req.query.nonce;
-
-    var tmpArray = [this.token, timestamp, nonce];
-    tmpArray.sort();
-
-    this.sha1Str = sha1(tmpArray.join(''));
-
-    if (this.sha1Str == signature) {
-        return true;
-    } else {
-        return false;
-    }
 };
 
 /**
@@ -200,6 +188,9 @@ Weixin.prototype.handleEventMsg = function () {
         case 'scan':
             this.handleScanEventMsg();
             break;
+        case 'ENTER':
+            this.handleEnterEventMsg();
+            break;
         case 'LOCATION':
             this.handleLocationEventMsg();
             break;
@@ -285,6 +276,25 @@ Weixin.prototype.scanEventMsg = function (callback) {
 };
 
 /**
+ * 处理进入会话事件消息
+ * @returns {*}
+ */
+Weixin.prototype.handleEnterEventMsg = function () {
+    emitter.emit('EnterEventMsg', this.msg);
+    return this;
+};
+
+/**
+ * 监听进入会话事件
+ * @param callback
+ * @returns {*}
+ */
+Weixin.prototype.enterEventMsg = function (callback) {
+    emitter.on('EnterEventMsg', callback);
+    return this;
+};
+
+/**
  * 处理上报地理位置消息
  * @returns {*}
  */
@@ -357,6 +367,42 @@ Weixin.prototype.analysisMsg = function () {
 };
 
 /**
+ * 服务器请请该接口，发送三个参数，本地经过流程判断有效性
+ * 验证权限
+ * @param req
+ * @returns {boolean}
+ */
+Weixin.prototype.signature = function (req) {
+    var signature = req.query.signature;    //服务器签名
+    var timestamp = req.query.timestamp;
+    var nonce = req.query.nonce;
+
+    var tmpArray = [this.token, timestamp, nonce];
+    tmpArray.sort();
+
+    this.sha1Str = sha1(tmpArray.join(''));
+
+    if (this.sha1Str == signature) {
+        return true;
+    } else {
+        return false;
+    }
+};
+
+/**
+ * 获取access token
+ */
+Weixin.prototype.accessToken = function (callback) {
+    var url = this.accessTokenUrl.replace('{APPID}', this.appid).replace('{APPSECRET}', this.secret)
+    httpHandle(url, 'get', {}, {}, function (r) {
+        this.accessToken = JSON.parse(r)['access_token'];
+        if (callback) {
+            callback(r);
+        }
+    });
+};
+
+/**
  * 洗下数据，数组取第一个
  * @param json
  * @returns {*}
@@ -373,9 +419,10 @@ Weixin.prototype.parseJson = function (json) {
  * @param req
  * @param res
  */
-Weixin.prototype.getMsg = function (req) {
+Weixin.prototype.getMsg = function (req, res) {
     var bufferHelper = new BufferHelper();
     var _this = this;
+    _this.res = res;
     req.setEncoding('utf-8');
     req.on('data', function (chunk) {
         bufferHelper.concat(chunk);
@@ -392,6 +439,32 @@ Weixin.prototype.getMsg = function (req) {
     });
 };
 
-Weixin.prototype.postMsg = function(){};
+/**
+ * 被动回复消息
+ * @param msg
+ */
+Weixin.prototype.postMsg = function (msg) {
+    var MsgType = msg.MsgType;
+    var weixinTmpl = weixinMsgXml[MsgType];
+    for (var k in msg) {
+        var reg = new RegExp('{' + k + '}', 'g');
+        weixinTmpl = weixinTmpl.replace(reg, msg[k]);
+    }
+    if (MsgType == 'news') {
+        var items = '';
+        for (var i = 0; i < msg.Articles.length; i++) {
+            var tmp = weixinMsgXml['item'];
+            for (var item in msg.Articles[i]) {
+                var regNews = new RegExp('{' + item + '}', 'g');
+                tmp = tmp.replace(regNews, msg.Articles[i][item]);
+            }
+            items += tmp;
+        }
+        weixinTmpl = weixinTmpl.replace('{ArticleCount}', Object.keys(msg.Articles).length);
+        weixinTmpl = weixinTmpl.replace('{items}', items);
+    }
+    this.res.type('xml');
+    this.res.send(weixinTmpl);
+};
 
 module.exports = Weixin;
