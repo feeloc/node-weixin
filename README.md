@@ -44,12 +44,50 @@ weixin.imageMsg(function (msg) {
         ToUserName: msg.FromUserName,
         CreateTime: new Date().getTime(),
         MsgType: 'image',
-        MediaId: '10001001'
+        MediaId: 'U-UH_SlFq3t16NRp4nu4Q_Yy_2p-l72L5X0S0qaySTNZNACBj1yIjLNBfFyIQlsE'
     });
     console.log(msg);
 });
 
 weixin.voiceMsg(function (msg) {
+    weixin.postMsg({
+        FromUserName: msg.ToUserName,
+        ToUserName: msg.FromUserName,
+        CreateTime: new Date().getTime(),
+        MsgType: 'voice',
+        MediaId: 'KmgpKgBjCNVSPr_QaR1oIKX36vc9zfmxxZh3zPnL4bX14WL0DenWzOUR4UuezeTS'
+    });
+    console.log(msg);
+});
+
+weixin.videoMsg(function (msg) {
+    weixin.postMsg({
+        FromUserName: msg.ToUserName,
+        ToUserName: msg.FromUserName,
+        CreateTime: new Date().getTime(),
+        MsgType: 'video',
+        MediaId: 'EurjyzU7O3QXY-V8YJF8RWOy9RqDq5Px0egafl1wUa_1_EvKWW3Jxlupxti-MRiW',
+        ThumbMediaId: 'U-UH_SlFq3t16NRp4nu4Q_Yy_2p-l72L5X0S0qaySTNZNACBj1yIjLNBfFyIQlsE'
+    });
+    console.log(msg);
+});
+
+weixin.locationMsg(function (msg) {
+    weixin.postMsg({
+        FromUserName: msg.ToUserName,
+        ToUserName: msg.FromUserName,
+        CreateTime: new Date().getTime(),
+        MsgType: 'music',
+        Title: '果果的原创音乐',
+        Description: '果果的原创音乐介绍',
+        MusicUrl: 'http://qiniu.tuhuangzhe.com/audio/%E7%9B%B8%E6%80%9D%E5%90%9F2.wav?avthumb/mp3/ab/192k',
+        HQMusicUrl: 'http://qiniu.tuhuangzhe.com/audio/%E7%9B%B8%E6%80%9D%E5%90%9F2.wav?avthumb/mp3/ab/250k',
+        ThumbMediaId: 'http://feeloc17.u.qiniudn.com/1385445518553/1385445518553.jpg?imageView/2/w/200'
+    });
+    console.log(msg);
+});
+
+weixin.linkMsg(function (msg) {
     weixin.postMsg({
         FromUserName: msg.ToUserName,
         ToUserName: msg.FromUserName,
@@ -70,18 +108,6 @@ weixin.voiceMsg(function (msg) {
             }
         ]
     });
-    console.log(msg);
-});
-
-weixin.videoMsg(function (msg) {
-    console.log(msg);
-});
-
-weixin.locationMsg(function (msg) {
-    console.log(msg);
-});
-
-weixin.linkMsg(function (msg) {
     console.log(msg);
 });
 
