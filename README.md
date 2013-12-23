@@ -9,101 +9,101 @@ Installation
 
 如果你使用node进行开发，那么安装很简单：
 ```bash
-    npm install node-weixin
+npm install node-weixin
 
-    var weixin = require('node-weixin').init({
-        url: '/',
-        token: '',
-        appid: '',
-        secret: ''
+var weixin = require('node-weixin').init({
+    url: '/',
+    token: '',
+    appid: '',
+    secret: ''
+});
+
+//如果是公共号，就获取下access token
+weixin.accessToken(function (r) {
+    console.log(r);
+});
+
+weixin.errMsg(function (err) {
+    console.log(err);
+});
+
+weixin.textMsg(function (msg) {
+    weixin.postMsg({
+        FromUserName: msg.ToUserName,
+        ToUserName: msg.FromUserName,
+        CreateTime: new Date().getTime(),
+        MsgType: 'text',
+        Content: ''
     });
+    console.log(msg);
+});
 
-    //如果是公共号，就获取下access token
-    weixin.accessToken(function (r) {
-        console.log(r);
+weixin.imageMsg(function (msg) {
+    weixin.postMsg({
+        FromUserName: msg.ToUserName,
+        ToUserName: msg.FromUserName,
+        CreateTime: new Date().getTime(),
+        MsgType: 'image',
+        MediaId: '10001001'
     });
+    console.log(msg);
+});
 
-    weixin.errMsg(function (err) {
-        console.log(err);
+weixin.voiceMsg(function (msg) {
+    weixin.postMsg({
+        FromUserName: msg.ToUserName,
+        ToUserName: msg.FromUserName,
+        CreateTime: new Date().getTime(),
+        MsgType: 'news',
+        Articles: [
+            {
+                Title: 'aa',
+                Description: 'bb',
+                PicUrl: 'http://feeloc08.u.qiniudn.com/1385473580021/1385473580021.jpg?imageView/2/w/320',
+                Url: 'http://blog.feeloc.cn'
+            },
+            {
+                Title: 'aa',
+                Description: 'bb',
+                PicUrl: 'http://feeloc08.u.qiniudn.com/1385473580021/1385473580021.jpg?imageView/2/w/320',
+                Url: 'http://blog.feeloc.cn'
+            }
+        ]
     });
+    console.log(msg);
+});
 
-    weixin.textMsg(function (msg) {
-        weixin.postMsg({
-            FromUserName: msg.ToUserName,
-            ToUserName: msg.FromUserName,
-            CreateTime: new Date().getTime(),
-            MsgType: 'text',
-            Content: ''
-        });
-        console.log(msg);
-    });
+weixin.videoMsg(function (msg) {
+    console.log(msg);
+});
 
-    weixin.imageMsg(function (msg) {
-        weixin.postMsg({
-            FromUserName: msg.ToUserName,
-            ToUserName: msg.FromUserName,
-            CreateTime: new Date().getTime(),
-            MsgType: 'image',
-            MediaId: '10001001'
-        });
-        console.log(msg);
-    });
+weixin.locationMsg(function (msg) {
+    console.log(msg);
+});
 
-    weixin.voiceMsg(function (msg) {
-        weixin.postMsg({
-            FromUserName: msg.ToUserName,
-            ToUserName: msg.FromUserName,
-            CreateTime: new Date().getTime(),
-            MsgType: 'news',
-            Articles: [
-                {
-                    Title: 'aa',
-                    Description: 'bb',
-                    PicUrl: 'http://feeloc08.u.qiniudn.com/1385473580021/1385473580021.jpg?imageView/2/w/320',
-                    Url: 'http://blog.feeloc.cn'
-                },
-                {
-                    Title: 'aa',
-                    Description: 'bb',
-                    PicUrl: 'http://feeloc08.u.qiniudn.com/1385473580021/1385473580021.jpg?imageView/2/w/320',
-                    Url: 'http://blog.feeloc.cn'
-                }
-            ]
-        });
-        console.log(msg);
-    });
+weixin.linkMsg(function (msg) {
+    console.log(msg);
+});
 
-    weixin.videoMsg(function (msg) {
-        console.log(msg);
-    });
+weixin.scanEventMsg(function (msg) {
+    console.log(msg);
+});
 
-    weixin.locationMsg(function (msg) {
-        console.log(msg);
-    });
+weixin.enterEventMsg(function (msg) {
+    console.log(msg);
+});
 
-    weixin.linkMsg(function (msg) {
-        console.log(msg);
-    });
+exports.token = function (req, res) {
+    if (weixin.signature(req)) {
+        res.send(200, req.query.echostr);
+    } else {
+        res.send(200, 'fail');
+    }
+};
 
-    weixin.scanEventMsg(function (msg) {
-        console.log(msg);
-    });
-
-    weixin.enterEventMsg(function (msg) {
-        console.log(msg);
-    });
-
-    exports.token = function (req, res) {
-        if (weixin.signature(req)) {
-            res.send(200, req.query.echostr);
-        } else {
-            res.send(200, 'fail');
-        }
-    };
-
-    exports.msg = function (req, res) {
-        weixin.getMsg(req, res);
-    };
+exports.msg = function (req, res) {
+    weixin.getMsg(req, res);
+};
 ```
 
 LICENSE
