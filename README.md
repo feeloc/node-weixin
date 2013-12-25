@@ -9,11 +9,15 @@ Installation
 
 如果你使用node进行开发，那么安装很简单：
 ```bash
+npm install node-weixin
+
+```
+
+如果是订阅号，可以使用基础接口
+```bash
 var weixin = require('node-weixin').init({
     url: '/',
-    token: '',
-    appid: '',
-    secret: ''
+    token: ''
 });
 
 weixin.errMsg(function (err) {
@@ -29,18 +33,7 @@ weixin.textMsg(function (msg) {
         ToUserName: msg.FromUserName,
         CreateTime: new Date().getTime(),
         MsgType: 'text',
-        Content: 'haha'
-    });
-    //发送客服文本消息
-    var data = {
-        'touser': 'oMjrktwd14JaPBIC75QViXPLXjZ4',
-        'msgtype': 'text',
-        'text': {
-            'content': '莫慌张，这是一条客服消息'
-        }
-    };
-    weixin.postKefuMsg(data, function (r) {
-        console.log(r);
+        Content: '哈哈'   //广本内容
     });
     console.log(msg);
 });
@@ -54,18 +47,7 @@ weixin.imageMsg(function (msg) {
         ToUserName: msg.FromUserName,
         CreateTime: new Date().getTime(),
         MsgType: 'image',
-        MediaId: '9GT8eGj2oiC_1hS_uzBWriuag_J_pEjdpzGz2ORXThxJ5gCzBXAbtgJ3g5x9wjkt'
-    });
-    //发送客服图片消息
-    var data = {
-        "touser": "oMjrktwd14JaPBIC75QViXPLXjZ4",
-        "msgtype": "image",
-        "image": {
-            "media_id": "9GT8eGj2oiC_1hS_uzBWriuag_J_pEjdpzGz2ORXThxJ5gCzBXAbtgJ3g5x9wjkt"
-        }
-    };
-    weixin.postKefuMsg(data, function (r) {
-        console.log(r);
+        MediaId: msg.MediaId
     });
     console.log(msg);
 });
@@ -79,18 +61,7 @@ weixin.voiceMsg(function (msg) {
         ToUserName: msg.FromUserName,
         CreateTime: new Date().getTime(),
         MsgType: 'voice',
-        MediaId: 'KmgpKgBjCNVSPr_QaR1oIKX36vc9zfmxxZh3zPnL4bX14WL0DenWzOUR4UuezeTS'
-    });
-    //发送客服语音消息
-    var data = {
-        "touser": "oMjrktwd14JaPBIC75QViXPLXjZ4",
-        "msgtype": "voice",
-        "voice": {
-            "media_id": "KmgpKgBjCNVSPr_QaR1oIKX36vc9zfmxxZh3zPnL4bX14WL0DenWzOUR4UuezeTS"
-        }
-    };
-    weixin.postKefuMsg(data, function (r) {
-        console.log(r);
+        MediaId: msg.MediaId
     });
     console.log(msg);
 });
@@ -104,21 +75,8 @@ weixin.videoMsg(function (msg) {
         ToUserName: msg.FromUserName,
         CreateTime: new Date().getTime(),
         MsgType: 'video',
-        MediaId: 'EurjyzU7O3QXY-V8YJF8RWOy9RqDq5Px0egafl1wUa_1_EvKWW3Jxlupxti-MRiW',
-        ThumbMediaId: 'U-UH_SlFq3t16NRp4nu4Q_Yy_2p-l72L5X0S0qaySTNZNACBj1yIjLNBfFyIQlsE'
-    });
-    //发送客服视频消息
-    var data = {
-        "touser": "oMjrktwd14JaPBIC75QViXPLXjZ4",
-        "msgtype": "video",
-        "video": {
-            "media_id": "EurjyzU7O3QXY-V8YJF8RWOy9RqDq5Px0egafl1wUa_1_EvKWW3Jxlupxti-MRiW",
-            "title": "aa",
-            "description": "bb"
-        }
-    };
-    weixin.postKefuMsg(data, function (r) {
-        console.log(r);
+        MediaId: msg.MediaId,
+        ThumbMediaId: msg.ThumbMediaId
     });
     console.log(msg);
 });
@@ -136,22 +94,7 @@ weixin.locationMsg(function (msg) {
         Description: '果果的原创音乐介绍',
         MusicUrl: 'http://qiniu.tuhuangzhe.com/audio/%E7%9B%B8%E6%80%9D%E5%90%9F2.wav?avthumb/mp3/ab/192k',
         HQMusicUrl: 'http://qiniu.tuhuangzhe.com/audio/%E7%9B%B8%E6%80%9D%E5%90%9F2.wav?avthumb/mp3/ab/250k',
-        ThumbMediaId: 'U-UH_SlFq3t16NRp4nu4Q_Yy_2p-l72L5X0S0qaySTNZNACBj1yIjLNBfFyIQlsE'
-    });
-    //发送客服音乐消息
-    var data = {
-        "touser": "oMjrktwd14JaPBIC75QViXPLXjZ4",
-        "msgtype": "music",
-        "music": {
-            "title": "果果的原创音乐",
-            "description": "果果的原创音乐介绍",
-            "musicurl": "http://qiniu.tuhuangzhe.com/audio/%E7%9B%B8%E6%80%9D%E5%90%9F2.wav?avthumb/mp3/ab/192k",
-            "hqmusicurl": "http://qiniu.tuhuangzhe.com/audio/%E7%9B%B8%E6%80%9D%E5%90%9F2.wav?avthumb/mp3/ab/250k",
-            "thumb_media_id": "9GT8eGj2oiC_1hS_uzBWriuag_J_pEjdpzGz2ORXThxJ5gCzBXAbtgJ3g5x9wjkt"
-        }
-    };
-    weixin.postKefuMsg(data, function (r) {
-        console.log(r);
+        ThumbMediaId: ThumbMediaId //要使用自己上传的一张图的MediaId
     });
     console.log(msg);
 });
@@ -179,30 +122,6 @@ weixin.linkMsg(function (msg) {
                 Url: 'http://blog.feeloc.cn'
             }
         ]
-    });
-    //发送客服图文消息
-    var data = {
-        "touser": "oMjrktwd14JaPBIC75QViXPLXjZ4",
-        "msgtype": "news",
-        "news": {
-            "articles": [
-                {
-                    "title": "客服消息",
-                    "description": "客服消息aa",
-                    "url": "http://blog.feeloc.cn",
-                    "picurl": "http://feeloc08.u.qiniudn.com/1385473580021/1385473580021.jpg?imageView/2/w/320"
-                },
-                {
-                    "title": "客服消息",
-                    "description": "客服消息bb",
-                    "url": "http://blog.feeloc.cn",
-                    "picurl": "http://feeloc08.u.qiniudn.com/1385473580021/1385473580021.jpg?imageView/2/w/320"
-                }
-            ]
-        }
-    };
-    weixin.postKefuMsg(data, function (r) {
-        console.log(r);
     });
     console.log(msg);
 });
@@ -240,6 +159,131 @@ weixin.enterEventMsg(function (msg) {
  */
 weixin.locationEventMsg(function (msg) {
     console.log(msg);
+});
+
+/**
+ * 点击自定义菜单事件
+ */
+weixin.clickEventMsg(function (msg) {
+    console.log(msg);
+});
+
+exports.token = function (req, res) {
+    if (weixin.signature(req)) {
+        res.send(200, req.query.echostr);
+    } else {
+        res.send(200, 'fail');
+    }
+};
+
+exports.msg = function (req, res) {
+    weixin.getMsg(req, res);
+};
+```
+
+
+如果是公众号，可以使用高级接口
+```bash
+var weixin = require('node-weixin').init({
+    url: '/',
+    token: '',
+    appid: '',
+    secret: ''
+});
+
+weixin.errMsg(function (err) {
+    console.log(err);
+});
+
+//发送客服文本消息
+var data = {
+    'touser': 'oMjrktwd14JaPBIC75QViXPLXjZ4',
+    'msgtype': 'text',
+    'text': {
+        'content': '莫慌张，这是一条客服消息'
+    }
+};
+weixin.postKefuMsg(data, function (r) {
+    console.log(r);
+});
+
+//发送客服图片消息
+var data = {
+    "touser": "oMjrktwd14JaPBIC75QViXPLXjZ4",
+    "msgtype": "image",
+    "image": {
+        "media_id": MediaId
+    }
+};
+weixin.postKefuMsg(data, function (r) {
+    console.log(r);
+});
+
+//发送客服语音消息
+var data = {
+    "touser": "oMjrktwd14JaPBIC75QViXPLXjZ4",
+    "msgtype": "voice",
+    "voice": {
+        "media_id": MediaId
+    }
+};
+weixin.postKefuMsg(data, function (r) {
+    console.log(r);
+});
+
+//发送客服视频消息
+var data = {
+    "touser": "oMjrktwd14JaPBIC75QViXPLXjZ4",
+    "msgtype": "video",
+    "video": {
+        "media_id": MediaId,
+        "title": "Title",
+        "description": "Description"
+    }
+};
+weixin.postKefuMsg(data, function (r) {
+    console.log(r);
+});
+
+//发送客服音乐消息
+var data = {
+    "touser": "oMjrktwd14JaPBIC75QViXPLXjZ4",
+    "msgtype": "music",
+    "music": {
+        "title": "果果的原创音乐",
+        "description": "果果的原创音乐介绍",
+        "musicurl": "http://qiniu.tuhuangzhe.com/audio/%E7%9B%B8%E6%80%9D%E5%90%9F2.wav?avthumb/mp3/ab/192k",
+        "hqmusicurl": "http://qiniu.tuhuangzhe.com/audio/%E7%9B%B8%E6%80%9D%E5%90%9F2.wav?avthumb/mp3/ab/250k",
+        "thumb_media_id": ThumbMediaId
+    }
+};
+weixin.postKefuMsg(data, function (r) {
+    console.log(r);
+});
+
+//发送客服图文消息
+var data = {
+    "touser": "oMjrktwd14JaPBIC75QViXPLXjZ4",
+    "msgtype": "news",
+    "news": {
+        "articles": [
+            {
+                "title": "客服消息",
+                "description": "客服消息aa",
+                "url": "http://blog.feeloc.cn",
+                "picurl": "http://feeloc08.u.qiniudn.com/1385473580021/1385473580021.jpg?imageView/2/w/320"
+            },
+            {
+                "title": "客服消息",
+                "description": "客服消息bb",
+                "url": "http://blog.feeloc.cn",
+                "picurl": "http://feeloc08.u.qiniudn.com/1385473580021/1385473580021.jpg?imageView/2/w/320"
+            }
+        ]
+    }
+};
+weixin.postKefuMsg(data, function (r) {
+    console.log(r);
 });
 
 /**
@@ -315,18 +359,6 @@ weixin.delCusMenu(function (r) {
 weixin.getUserList(function (r) {
     console.log(r);
 });
-
-exports.token = function (req, res) {
-    if (weixin.signature(req)) {
-        res.send(200, req.query.echostr);
-    } else {
-        res.send(200, 'fail');
-    }
-};
-
-exports.msg = function (req, res) {
-    weixin.getMsg(req, res);
-};
 ```
 
 LICENSE
