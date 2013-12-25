@@ -10,7 +10,6 @@ Installation
 如果你使用node进行开发，那么安装很简单：
 ```bash
 npm install node-weixin
-
 ```
 
 如果是订阅号，可以使用基础接口
@@ -182,7 +181,7 @@ exports.msg = function (req, res) {
 ```
 
 
-如果是公众号，可以使用高级接口
+如果是公众号，可以使用高级接口，当然订阅号的接口都可以使用
 ```bash
 var weixin = require('node-weixin').init({
     url: '/',
@@ -191,8 +190,11 @@ var weixin = require('node-weixin').init({
     secret: ''
 });
 
-weixin.errMsg(function (err) {
-    console.log(err);
+/**
+* 获取access_token，7200S过期一次，可以放缓存中，陪两小时重新获取下
+*/
+weixin.getAccessToken(function (r) {
+    console.log(r);
 });
 
 //发送客服文本消息
