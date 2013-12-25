@@ -34,7 +34,7 @@ var Weixin = function (options) {
     this.appid = options.appid || '';
     this.secret = options.secret || '';
 
-    this.accessToken = 'R77CmS8Qb15MwJfurjVNQGLRvUQmvLZdaJlUdNmVtRKpbJBTw9YOSa1pMPOp22iW4iEEF7xEj6LUV8zcxW6RwcvS-3n1Ig52LRyuiI3EwzTxXu9aWvKqkqK4Y-fwPSCc-v5j-Gu9oCYsbm7rlcRtrw';
+    this.accessToken = '';
 };
 
 /**
