@@ -1,16 +1,8 @@
-[![Build Status](https://travis-ci.org/JeremyWei/weixin_api.png)](https://travis-ci.org/feeloc/node-weixin)
-node-weixin
-==========
-
-微信公众平台[消息接口](http://mp.weixin.qq.com/wiki/index.php?title=%E6%B6%88%E6%81%AF%E6%8E%A5%E5%8F%A3%E6%8C%87%E5%8D%97)的Node.js实现。
-
-Installation
-===========
-
-如果你使用node进行开发，那么安装很简单：
-```bash
 npm install node-weixin
 
+/**
+* 如果需要使用高级接口需要申请公众号，订阅号只能使用基础接口
+*/
 var weixin = require('node-weixin').init({
     url: '/',
     token: '',
@@ -18,37 +10,63 @@ var weixin = require('node-weixin').init({
     secret: ''
 });
 
-//如果是公共号，就获取下access token
-weixin.accessToken(function (r) {
-    console.log(r);
-});
-
 weixin.errMsg(function (err) {
     console.log(err);
 });
 
+/**
+ * 监听广本消息
+ */
 weixin.textMsg(function (msg) {
     weixin.postMsg({
         FromUserName: msg.ToUserName,
         ToUserName: msg.FromUserName,
         CreateTime: new Date().getTime(),
         MsgType: 'text',
-        Content: ''
+        Content: 'haha'
+    });
+    //发送客服文本消息
+    var data = {
+        'touser': 'oMjrktwd14JaPBIC75QViXPLXjZ4',
+        'msgtype': 'text',
+        'text': {
+            'content': '莫慌张，这是一条客服消息'
+        }
+    };
+    weixin.postKefuMsg(data, function (r) {
+        console.log(r);
     });
     console.log(msg);
 });
 
+/**
+ * 监听图片消息
+ */
 weixin.imageMsg(function (msg) {
     weixin.postMsg({
         FromUserName: msg.ToUserName,
         ToUserName: msg.FromUserName,
         CreateTime: new Date().getTime(),
         MsgType: 'image',
-        MediaId: 'U-UH_SlFq3t16NRp4nu4Q_Yy_2p-l72L5X0S0qaySTNZNACBj1yIjLNBfFyIQlsE'
+        MediaId: '9GT8eGj2oiC_1hS_uzBWriuag_J_pEjdpzGz2ORXThxJ5gCzBXAbtgJ3g5x9wjkt'
+    });
+    //发送客服图片消息
+    var data = {
+        "touser": "oMjrktwd14JaPBIC75QViXPLXjZ4",
+        "msgtype": "image",
+        "image": {
+            "media_id": "9GT8eGj2oiC_1hS_uzBWriuag_J_pEjdpzGz2ORXThxJ5gCzBXAbtgJ3g5x9wjkt"
+        }
+    };
+    weixin.postKefuMsg(data, function (r) {
+        console.log(r);
     });
     console.log(msg);
 });
 
+/**
+ * 监听语音消息
+ */
 weixin.voiceMsg(function (msg) {
     weixin.postMsg({
         FromUserName: msg.ToUserName,
@@ -57,9 +75,23 @@ weixin.voiceMsg(function (msg) {
         MsgType: 'voice',
         MediaId: 'KmgpKgBjCNVSPr_QaR1oIKX36vc9zfmxxZh3zPnL4bX14WL0DenWzOUR4UuezeTS'
     });
+    //发送客服语音消息
+    var data = {
+        "touser": "oMjrktwd14JaPBIC75QViXPLXjZ4",
+        "msgtype": "voice",
+        "voice": {
+            "media_id": "KmgpKgBjCNVSPr_QaR1oIKX36vc9zfmxxZh3zPnL4bX14WL0DenWzOUR4UuezeTS"
+        }
+    };
+    weixin.postKefuMsg(data, function (r) {
+        console.log(r);
+    });
     console.log(msg);
 });
 
+/**
+ * 监听视频消息
+ */
 weixin.videoMsg(function (msg) {
     weixin.postMsg({
         FromUserName: msg.ToUserName,
@@ -69,9 +101,25 @@ weixin.videoMsg(function (msg) {
         MediaId: 'EurjyzU7O3QXY-V8YJF8RWOy9RqDq5Px0egafl1wUa_1_EvKWW3Jxlupxti-MRiW',
         ThumbMediaId: 'U-UH_SlFq3t16NRp4nu4Q_Yy_2p-l72L5X0S0qaySTNZNACBj1yIjLNBfFyIQlsE'
     });
+    //发送客服视频消息
+    var data = {
+        "touser": "oMjrktwd14JaPBIC75QViXPLXjZ4",
+        "msgtype": "video",
+        "video": {
+            "media_id": "EurjyzU7O3QXY-V8YJF8RWOy9RqDq5Px0egafl1wUa_1_EvKWW3Jxlupxti-MRiW",
+            "title": "aa",
+            "description": "bb"
+        }
+    };
+    weixin.postKefuMsg(data, function (r) {
+        console.log(r);
+    });
     console.log(msg);
 });
 
+/**
+ * 监听上报地理位置消息
+ */
 weixin.locationMsg(function (msg) {
     weixin.postMsg({
         FromUserName: msg.ToUserName,
@@ -82,11 +130,29 @@ weixin.locationMsg(function (msg) {
         Description: '果果的原创音乐介绍',
         MusicUrl: 'http://qiniu.tuhuangzhe.com/audio/%E7%9B%B8%E6%80%9D%E5%90%9F2.wav?avthumb/mp3/ab/192k',
         HQMusicUrl: 'http://qiniu.tuhuangzhe.com/audio/%E7%9B%B8%E6%80%9D%E5%90%9F2.wav?avthumb/mp3/ab/250k',
-        ThumbMediaId: 'http://feeloc17.u.qiniudn.com/1385445518553/1385445518553.jpg?imageView/2/w/200'
+        ThumbMediaId: 'U-UH_SlFq3t16NRp4nu4Q_Yy_2p-l72L5X0S0qaySTNZNACBj1yIjLNBfFyIQlsE'
+    });
+    //发送客服音乐消息
+    var data = {
+        "touser": "oMjrktwd14JaPBIC75QViXPLXjZ4",
+        "msgtype": "music",
+        "music": {
+            "title": "果果的原创音乐",
+            "description": "果果的原创音乐介绍",
+            "musicurl": "http://qiniu.tuhuangzhe.com/audio/%E7%9B%B8%E6%80%9D%E5%90%9F2.wav?avthumb/mp3/ab/192k",
+            "hqmusicurl": "http://qiniu.tuhuangzhe.com/audio/%E7%9B%B8%E6%80%9D%E5%90%9F2.wav?avthumb/mp3/ab/250k",
+            "thumb_media_id": "9GT8eGj2oiC_1hS_uzBWriuag_J_pEjdpzGz2ORXThxJ5gCzBXAbtgJ3g5x9wjkt"
+        }
+    };
+    weixin.postKefuMsg(data, function (r) {
+        console.log(r);
     });
     console.log(msg);
 });
 
+/**
+ * 监听链接消息
+ */
 weixin.linkMsg(function (msg) {
     weixin.postMsg({
         FromUserName: msg.ToUserName,
@@ -108,15 +174,140 @@ weixin.linkMsg(function (msg) {
             }
         ]
     });
+    //发送客服图文消息
+    var data = {
+        "touser": "oMjrktwd14JaPBIC75QViXPLXjZ4",
+        "msgtype": "news",
+        "news": {
+            "articles": [
+                {
+                    "title": "客服消息",
+                    "description": "客服消息aa",
+                    "url": "http://blog.feeloc.cn",
+                    "picurl": "http://feeloc08.u.qiniudn.com/1385473580021/1385473580021.jpg?imageView/2/w/320"
+                },
+                {
+                    "title": "客服消息",
+                    "description": "客服消息bb",
+                    "url": "http://blog.feeloc.cn",
+                    "picurl": "http://feeloc08.u.qiniudn.com/1385473580021/1385473580021.jpg?imageView/2/w/320"
+                }
+            ]
+        }
+    };
+    weixin.postKefuMsg(data, function (r) {
+        console.log(r);
+    });
     console.log(msg);
 });
 
+/**
+ * 点击关注
+ */
+weixin.subEventMsg(function (msg) {
+    console.log(msg);
+});
+
+/**
+ * 取消关注
+ */
+weixin.unsubEventMsg(function (msg) {
+    console.log(msg);
+});
+
+/**
+ * 扫自定义二维码
+ */
 weixin.scanEventMsg(function (msg) {
     console.log(msg);
 });
 
+/**
+ * 进入会话
+ */
 weixin.enterEventMsg(function (msg) {
     console.log(msg);
+});
+
+/**
+ * 上报地理位置
+ */
+weixin.locationEventMsg(function (msg) {
+    console.log(msg);
+});
+
+/**
+ * 点击自定义菜单事件
+ */
+weixin.clickEventMsg(function (msg) {
+    //发送客服文本消息
+    var data = {
+        'touser': 'oMjrktwd14JaPBIC75QViXPLXjZ4',
+        'msgtype': 'text',
+        'text': {
+            'content': '你丫干嘛点我'
+        }
+    };
+    weixin.postKefuMsg(data, function (r) {
+        console.log(r);
+    });
+    console.log(msg);
+});
+
+/**
+ * 设置自定义菜单
+ */
+weixin.setCusMenu({
+    "button": [
+        {
+            "type": "click",
+            "name": "今日歌曲",
+            "key": "V1001_TODAY_MUSIC"
+        },
+        {
+            "name": "菜单",
+            "sub_button": [
+                {
+                    "type": "view",
+                    "name": "搜索",
+                    "url": "http://www.soso.com/"
+                },
+                {
+                    "type": "view",
+                    "name": "视频",
+                    "url": "http://v.qq.com/"
+                },
+                {
+                    "type": "click",
+                    "name": "赞一下我们",
+                    "key": "V1001_GOOD"
+                }
+            ]
+        }
+    ]
+}, function (r) {
+    console.log(r);
+});
+
+/**
+ * 获取自定义菜单
+ */
+weixin.getCusMenu(function (r) {
+    console.log(r);
+});
+
+/**
+ * 删除自定义菜单
+ */
+weixin.delCusMenu(function (r) {
+    console.log(r);
+});
+
+/**
+ * 获得用户列表
+ */
+weixin.getUserList(function (r) {
+    console.log(r);
 });
 
 exports.token = function (req, res) {
@@ -130,16 +321,3 @@ exports.token = function (req, res) {
 exports.msg = function (req, res) {
     weixin.getMsg(req, res);
 };
-```
-
-LICENSE
-===========
-The MIT License (MIT)
-Copyright (c) 2013 feeloc
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-

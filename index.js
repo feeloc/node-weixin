@@ -6,6 +6,7 @@
  * To change this template use File | Settings | File Templates.
  */
 
+var fs = require('fs');
 var sha1 = require('sha1');
 var BufferHelper = require('bufferhelper');
 var xml2js = require('xml2js');
@@ -20,11 +21,20 @@ var weixinMsgXml = require('./lib/weixinMsgXml').weixinMsgXml;
  * @constructor
  */
 var Weixin = function (options) {
-    this.accessTokenUrl = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={APPID}&secret={APPSECRET}'
+    this.accessTokenUrl = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={APPID}&secret={APPSECRET}';
+    this.postKefuMsgUrl = 'https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token={ACCESS_TOKEN}';
+    this.getUserListUrl = 'https://api.weixin.qq.com/cgi-bin/user/get?access_token={ACCESS_TOKEN}&next_openid=';
+    this.setCusMenuUrl = 'https://api.weixin.qq.com/cgi-bin/menu/create?access_token={ACCESS_TOKEN}';
+    this.getCusMenuUrl = 'https://api.weixin.qq.com/cgi-bin/menu/get?access_token={ACCESS_TOKEN}';
+    this.delCusMenuUrl = 'https://api.weixin.qq.com/cgi-bin/menu/delete?access_token={ACCESS_TOKEN}';
+    this.createTicketUrl = 'https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token={ACCESS_TOKEN}';
+    this.getTicketUrl = 'https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket={TICKET}';
     this.url = options.url || '/';
     this.token = options.token || '';
     this.appid = options.appid || '';
     this.secret = options.secret || '';
+
+    this.accessToken = 'R77CmS8Qb15MwJfurjVNQGLRvUQmvLZdaJlUdNmVtRKpbJBTw9YOSa1pMPOp22iW4iEEF7xEj6LUV8zcxW6RwcvS-3n1Ig52LRyuiI3EwzTxXu9aWvKqkqK4Y-fwPSCc-v5j-Gu9oCYsbm7rlcRtrw';
 };
 
 /**
@@ -208,12 +218,7 @@ Weixin.prototype.handleEventMsg = function () {
  */
 Weixin.prototype.handleSubEventMsg = function () {
     // 扫码，未关注，先关注后发场景值
-    if (this.msg.EventKey) {
-        emitter.emit('SubScanEventMsg', this.msg);
-    } else {
-        //关注事件
-        emitter.emit('SubEventMsg', this.msg);
-    }
+    emitter.emit('SubEventMsg', this.msg);
     return this;
 };
 
@@ -224,16 +229,6 @@ Weixin.prototype.handleSubEventMsg = function () {
  */
 Weixin.prototype.subEventMsg = function (callback) {
     emitter.on('SubEventMsg', callback);
-    return this;
-};
-
-/**
- * 监听扫码订阅事件消息
- * @param callback
- * @returns {*}
- */
-Weixin.prototype.subEventMsg = function (callback) {
-    emitter.on('SubScanEventMsg', callback);
     return this;
 };
 
@@ -360,46 +355,10 @@ Weixin.prototype.analysisMsg = function () {
                 this.handleLinkMsg();   //链接消息
                 break;
             case 'event':
-                this.handleEventMsg();
+                this.handleEventMsg();  //事件消息
                 break;
         }
     }
-};
-
-/**
- * 服务器请请该接口，发送三个参数，本地经过流程判断有效性
- * 验证权限
- * @param req
- * @returns {boolean}
- */
-Weixin.prototype.signature = function (req) {
-    var signature = req.query.signature;    //服务器签名
-    var timestamp = req.query.timestamp;
-    var nonce = req.query.nonce;
-
-    var tmpArray = [this.token, timestamp, nonce];
-    tmpArray.sort();
-
-    this.sha1Str = sha1(tmpArray.join(''));
-
-    if (this.sha1Str == signature) {
-        return true;
-    } else {
-        return false;
-    }
-};
-
-/**
- * 获取access token
- */
-Weixin.prototype.accessToken = function (callback) {
-    var url = this.accessTokenUrl.replace('{APPID}', this.appid).replace('{APPSECRET}', this.secret)
-    httpHandle(url, 'get', {}, {}, function (r) {
-        this.accessToken = JSON.parse(r)['access_token'];
-        if (callback) {
-            callback(r);
-        }
-    });
 };
 
 /**
@@ -440,6 +399,29 @@ Weixin.prototype.getMsg = function (req, res) {
 };
 
 /**
+ * 服务器请请该接口，发送三个参数，本地经过流程判断有效性
+ * 验证权限
+ * @param req
+ * @returns {boolean}
+ */
+Weixin.prototype.signature = function (req) {
+    var signature = req.query.signature;    //服务器签名
+    var timestamp = req.query.timestamp;
+    var nonce = req.query.nonce;
+
+    var tmpArray = [this.token, timestamp, nonce];
+    tmpArray.sort();
+
+    this.sha1Str = sha1(tmpArray.join(''));
+
+    if (this.sha1Str == signature) {
+        return true;
+    } else {
+        return false;
+    }
+};
+
+/**
  * 被动回复消息
  * @param msg
  */
@@ -465,6 +447,116 @@ Weixin.prototype.postMsg = function (msg) {
     }
     this.res.type('xml');
     this.res.send(weixinTmpl);
+};
+
+/**
+ * 以上接收订阅号的事件
+ * ==================================================================================================================
+ * 以下是高级接口，需要申请了公众号才可使用
+ */
+
+/**
+ * 获取access token
+ */
+Weixin.prototype.getAccessToken = function (callback) {
+    var url = this.accessTokenUrl.replace('{APPID}', this.appid).replace('{APPSECRET}', this.secret);
+    httpHandle(url, 'GET', {}, {}, function (r) {
+        if (callback) {
+            callback(r);
+        }
+    });
+};
+
+/**
+ * 发送客服消息
+ * @param data 客服消息内容
+ * @param callback
+ */
+Weixin.prototype.postKefuMsg = function (data, callback) {
+    var url = this.postKefuMsgUrl.replace(/{ACCESS_TOKEN}/g, this.accessToken);
+    httpHandle(url, 'POST', {}, data, function (r) {
+        if (callback) {
+            callback(r);
+        }
+    });
+};
+
+/**
+ *  取用户信息
+ * @param callback
+ */
+Weixin.prototype.getUserList = function (callback) {
+    var url = this.getUserListUrl.replace(/{ACCESS_TOKEN}/g, this.accessToken);
+    httpHandle(url, 'GET', {}, {}, function (r) {
+        if (callback) {
+            callback(r);
+        }
+    });
+};
+
+/**
+ * 创建自定义菜单
+ * @param data  菜单信息
+ * @param callback
+ */
+Weixin.prototype.setCusMenu = function (data, callback) {
+    var url = this.setCusMenuUrl.replace(/{ACCESS_TOKEN}/g, this.accessToken);
+    httpHandle(url, 'POST', {}, data, function (r) {
+        if (callback) {
+            callback(r);
+        }
+    });
+};
+
+/**
+ * 获取自定义菜单
+ * @param callback
+ */
+Weixin.prototype.getCusMenu = function (callback) {
+    var url = this.getCusMenuUrl.replace(/{ACCESS_TOKEN}/g, this.accessToken);
+    httpHandle(url, 'GET', {}, {}, function (r) {
+        if (callback) {
+            callback(r);
+        }
+    });
+};
+
+/**
+ * 删除自定义菜单
+ * @param callback
+ */
+Weixin.prototype.delCusMenu = function (callback) {
+    var url = this.delCusMenuUrl.replace(/{ACCESS_TOKEN}/g, this.accessToken);
+    httpHandle(url, 'GET', {}, {}, function (r) {
+        if (callback) {
+            callback(r);
+        }
+    });
+};
+
+/**
+ * 创建二维码
+ * @param data
+ * 临时二维码： {"expire_seconds": 1800, "action_name": "QR_SCENE", "action_info": {"scene": {"scene_id": 123}}}
+ * 永久二维码： {"action_name": "QR_LIMIT_SCENE", "action_info": {"scene": {"scene_id": 123}}}
+ * @param callback
+ */
+Weixin.prototype.createTicket = function (data, callback) {
+    var url = this.createTicketUrl.replace(/{ACCESS_TOKEN}/g, this.accessToken);
+    httpHandle(url, 'POST', {}, data, function (r) {
+        if (callback) {
+            callback(r);
+        }
+    });
+};
+
+/**
+ * 获取二维码的地址
+ * @param callback
+ */
+Weixin.prototype.getTicket = function (ticket, callback) {
+    var url = this.getTicketUrl.replace(/{TICKET}/g, ticket);
+    callback(url);
 };
 
 module.exports = Weixin;
