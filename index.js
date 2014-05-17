@@ -390,7 +390,7 @@ Weixin.prototype.getMsg = function (req, res) {
         xml2js.parseString(bufferHelper.toBuffer().toString(), function (err, json) {
             if (err) {
                 _this.err = err;
-            } else {
+            } else if (json) {
                 _this.msg = _this.parseJson(json.xml);
             }
             _this.analysisMsg();
