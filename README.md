@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/JeremyWei/weixin_api.png)](https://travis-ci.org/feeloc/node-weixin)
+[![Build Status](https://travis-ci.org/feeloc/node-weixin.png)](https://travis-ci.org/feeloc/node-weixin)
 node-weixin
 ==========
 
