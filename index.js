@@ -11,7 +11,6 @@ var sha1 = require('sha1');
 var BufferHelper = require('bufferhelper');
 var xml2js = require('xml2js');
 var events = require('events');
-var emitter = new events.EventEmitter();
 var httpHandle = require('./lib/util').httpHandle;
 var weixinMsgXml = require('./lib/weixinMsgXml').weixinMsgXml;
 
@@ -35,6 +34,7 @@ var Weixin = function (options) {
     this.secret = options.secret || '';
 
     this.accessToken = '';
+    this.emitter = new events.EventEmitter();
 };
 
 /**
@@ -54,7 +54,7 @@ Weixin.init = function (options) {
  * @returns {*}
  */
 Weixin.prototype.handleMsgErr = function () {
-    emitter.on('MsgErr', this.err);
+    this.emitter.emit('MsgErr', this.err);
     return this;
 };
 
@@ -64,7 +64,7 @@ Weixin.prototype.handleMsgErr = function () {
  * @returns {*}
  */
 Weixin.prototype.errMsg = function (callback) {
-    emitter.on('MsgErr', callback);
+    this.emitter.on('MsgErr', callback);
     return this;
 };
 
@@ -73,7 +73,7 @@ Weixin.prototype.errMsg = function (callback) {
  * @returns {*}
  */
 Weixin.prototype.handleTextMsg = function () {
-    emitter.emit('TextMsg', this.msg);
+    this.emitter.emit('TextMsg', this.msg);
     return this;
 };
 
@@ -83,7 +83,7 @@ Weixin.prototype.handleTextMsg = function () {
  * @returns {*}
  */
 Weixin.prototype.textMsg = function (callback) {
-    emitter.on('TextMsg', callback);
+    this.emitter.on('TextMsg', callback);
     return this;
 };
 
@@ -92,7 +92,7 @@ Weixin.prototype.textMsg = function (callback) {
  * @returns {*}
  */
 Weixin.prototype.handleImageMsg = function () {
-    emitter.emit('ImageMsg', this.msg);
+    this.emitter.emit('ImageMsg', this.msg);
     return this;
 };
 
@@ -102,7 +102,7 @@ Weixin.prototype.handleImageMsg = function () {
  * @returns {*}
  */
 Weixin.prototype.imageMsg = function (callback) {
-    emitter.on('ImageMsg', callback);
+    this.emitter.on('ImageMsg', callback);
     return this;
 };
 
@@ -111,7 +111,7 @@ Weixin.prototype.imageMsg = function (callback) {
  * @returns {*}
  */
 Weixin.prototype.handleVoiceMsg = function () {
-    emitter.emit('VoiceMsg', this.msg);
+    this.emitter.emit('VoiceMsg', this.msg);
     return this;
 };
 
@@ -121,7 +121,7 @@ Weixin.prototype.handleVoiceMsg = function () {
  * @returns {*}
  */
 Weixin.prototype.voiceMsg = function (callback) {
-    emitter.on('VoiceMsg', callback);
+    this.emitter.on('VoiceMsg', callback);
     return this;
 };
 
@@ -130,7 +130,7 @@ Weixin.prototype.voiceMsg = function (callback) {
  * @returns {*}
  */
 Weixin.prototype.handleVideoMsg = function () {
-    emitter.emit('VideoMsg', this.msg);
+    this.emitter.emit('VideoMsg', this.msg);
     return this;
 };
 
@@ -140,7 +140,7 @@ Weixin.prototype.handleVideoMsg = function () {
  * @returns {*}
  */
 Weixin.prototype.videoMsg = function (callback) {
-    emitter.on('VideoMsg', callback);
+    this.emitter.on('VideoMsg', callback);
     return this;
 };
 
@@ -149,7 +149,7 @@ Weixin.prototype.videoMsg = function (callback) {
  * @returns {*}
  */
 Weixin.prototype.handleLocationMsg = function () {
-    emitter.emit('LocationMsg', this.msg);
+    this.emitter.emit('LocationMsg', this.msg);
     return this;
 };
 
@@ -159,7 +159,7 @@ Weixin.prototype.handleLocationMsg = function () {
  * @returns {*}
  */
 Weixin.prototype.locationMsg = function (callback) {
-    emitter.on('LocationMsg', callback);
+    this.emitter.on('LocationMsg', callback);
     return this;
 };
 
@@ -168,7 +168,7 @@ Weixin.prototype.locationMsg = function (callback) {
  * @returns {*}
  */
 Weixin.prototype.handleLinkMsg = function () {
-    emitter.emit('LinkMsg', this.msg);
+    this.emitter.emit('LinkMsg', this.msg);
     return this;
 };
 
@@ -178,7 +178,7 @@ Weixin.prototype.handleLinkMsg = function () {
  * @returns {*}
  */
 Weixin.prototype.linkMsg = function (callback) {
-    emitter.on('LinkMsg', callback);
+    this.emitter.on('LinkMsg', callback);
     return this;
 };
 
@@ -218,7 +218,7 @@ Weixin.prototype.handleEventMsg = function () {
  */
 Weixin.prototype.handleSubEventMsg = function () {
     // 扫码，未关注，先关注后发场景值
-    emitter.emit('SubEventMsg', this.msg);
+    this.emitter.emit('SubEventMsg', this.msg);
     return this;
 };
 
@@ -228,7 +228,7 @@ Weixin.prototype.handleSubEventMsg = function () {
  * @returns {*}
  */
 Weixin.prototype.subEventMsg = function (callback) {
-    emitter.on('SubEventMsg', callback);
+    this.emitter.on('SubEventMsg', callback);
     return this;
 };
 
@@ -237,7 +237,7 @@ Weixin.prototype.subEventMsg = function (callback) {
  * @returns {*}
  */
 Weixin.prototype.handleUnsubEventMsg = function () {
-    emitter.emit('UnSubEventMsg', this.msg);
+    this.emitter.emit('UnSubEventMsg', this.msg);
     return this;
 };
 
@@ -247,7 +247,7 @@ Weixin.prototype.handleUnsubEventMsg = function () {
  * @returns {*}
  */
 Weixin.prototype.unsubEventMsg = function (callback) {
-    emitter.on('UnSubEventMsg', callback);
+    this.emitter.on('UnSubEventMsg', callback);
     return this;
 };
 
@@ -256,7 +256,7 @@ Weixin.prototype.unsubEventMsg = function (callback) {
  * @returns {*}
  */
 Weixin.prototype.handleScanEventMsg = function () {
-    emitter.emit('ScanEventMsg', this.msg);
+    this.emitter.emit('ScanEventMsg', this.msg);
     return this;
 };
 
@@ -266,7 +266,7 @@ Weixin.prototype.handleScanEventMsg = function () {
  * @returns {*}
  */
 Weixin.prototype.scanEventMsg = function (callback) {
-    emitter.on('ScanEventMsg', callback);
+    this.emitter.on('ScanEventMsg', callback);
     return this;
 };
 
@@ -275,7 +275,7 @@ Weixin.prototype.scanEventMsg = function (callback) {
  * @returns {*}
  */
 Weixin.prototype.handleEnterEventMsg = function () {
-    emitter.emit('EnterEventMsg', this.msg);
+    this.emitter.emit('EnterEventMsg', this.msg);
     return this;
 };
 
@@ -285,7 +285,7 @@ Weixin.prototype.handleEnterEventMsg = function () {
  * @returns {*}
  */
 Weixin.prototype.enterEventMsg = function (callback) {
-    emitter.on('EnterEventMsg', callback);
+    this.emitter.on('EnterEventMsg', callback);
     return this;
 };
 
@@ -294,7 +294,7 @@ Weixin.prototype.enterEventMsg = function (callback) {
  * @returns {*}
  */
 Weixin.prototype.handleLocationEventMsg = function () {
-    emitter.emit('LocationEventMsg', this.msg);
+    this.emitter.emit('LocationEventMsg', this.msg);
     return this;
 };
 
@@ -304,7 +304,7 @@ Weixin.prototype.handleLocationEventMsg = function () {
  * @returns {*}
  */
 Weixin.prototype.locationEventMsg = function (callback) {
-    emitter.on('LocationEventMsg', callback);
+    this.emitter.on('LocationEventMsg', callback);
     return this;
 };
 
@@ -313,7 +313,7 @@ Weixin.prototype.locationEventMsg = function (callback) {
  * @returns {*}
  */
 Weixin.prototype.handleClickEventMsg = function () {
-    emitter.emit('clickEventMsg', this.msg);
+    this.emitter.emit('clickEventMsg', this.msg);
     return this;
 };
 
@@ -323,7 +323,7 @@ Weixin.prototype.handleClickEventMsg = function () {
  * @returns {*}
  */
 Weixin.prototype.clickEventMsg = function (callback) {
-    emitter.on('clickEventMsg', callback);
+    this.emitter.on('clickEventMsg', callback);
     return this;
 };
 
