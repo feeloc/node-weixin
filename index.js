@@ -14,6 +14,7 @@ var events = require('events');
 var emitter = new events.EventEmitter();
 var httpHandle = require('./lib/util').httpHandle;
 var weixinMsgXml = require('./lib/weixinMsgXml').weixinMsgXml;
+var Q = require( "q" );
 
 /**
  * 微信类，实现微信的所有接口
@@ -29,6 +30,7 @@ var Weixin = function (options) {
     this.delCusMenuUrl = 'https://api.weixin.qq.com/cgi-bin/menu/delete?access_token={ACCESS_TOKEN}';
     this.createTicketUrl = 'https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token={ACCESS_TOKEN}';
     this.getTicketUrl = 'https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket={TICKET}';
+    this.apiRoot      = "https://api.weixin.qq.com/cgi-bin/";
     this.url = options.url || '/';
     this.token = options.token || '';
     this.appid = options.appid || '';
@@ -557,6 +559,43 @@ Weixin.prototype.createTicket = function (data, callback) {
 Weixin.prototype.getTicket = function (ticket, callback) {
     var url = this.getTicketUrl.replace(/{TICKET}/g, ticket);
     callback(url);
+};
+
+/************多客服相关接口**************/
+/**
+ * 获取会话记录
+ * @param data http://dkf.qq.com/document-1_1.html
+ * @param callback
+ */
+Weixin.prototype.getChatHistory = function (data, callback) {
+    var url = this.apiRoot 
+            + 'customservice/getrecord?access_token=' 
+            + this.accessToken;
+    httpHandle(url, 'POST', {}, data, function (r) {
+        if (callback) {
+            callback(r);
+        }
+    });
+};
+//
+//对node-wixin接口调用代理，支持Q调用 
+Weixin.prototype.proxyCall = function( pMethod, data ) {
+    var deferred = Q.defer();
+    var toArgs = [function( r ) {
+        var r = JSON.parse( r );
+        if( r.errcode ) {
+            //微信接口返回错误
+            deferred.reject({
+                errno: -808,
+                error: r
+            });
+        }
+        deferred.resolve( r );
+    }];
+    if( data ) toArgs.unshift( data );
+    //调用下面的方法
+    this[pMethod].apply( this, toArgs );
+    return deferred.promise;
 };
 
 module.exports = Weixin;

@@ -1,31 +1,32 @@
 {
-    "name": "node-weixin",
-    "version": "0.1.0",
-    "description": "nodejs weixin api",
-    "main": "index.js",
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/feeloc/node-weixin"
-    },
-    "keywords": [
-        "nodejs",
-        "weixin",
-        "wechat",
-        "api"
-    ],
-    "author": {
-        "name": "feeloc"
-    },
-    "license": "MIT",
-    "dependencies": {
-        "sha1": "1.1.0",
-        "xml2js": "0.4.0",
-        "bufferhelper": "0.2.0"
-    },
-    "bugs": {
-        "url": "https://github.com/feeloc/node-weixin/issues"
-    }
+  "name": "node-weixin",
+  "version": "0.1.0",
+  "description": "nodejs weixin api",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/feeloc/node-weixin"
+  },
+  "keywords": [
+    "nodejs",
+    "weixin",
+    "wechat",
+    "api"
+  ],
+  "author": {
+    "name": "feeloc"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "bufferhelper": "0.2.0",
+    "q": "^1.0.1",
+    "sha1": "1.1.0",
+    "xml2js": "0.4.0"
+  },
+  "bugs": {
+    "url": "https://github.com/feeloc/node-weixin/issues"
+  }
 }
